@@ -25,10 +25,17 @@ describe('serveStatic()', function () {
       assert.throws(serveStatic.bind(null, 42), /root path.*string/)
     })
 
-    it('should serve static files', function (done) {
+    it('should serve static es5 files', function (done) {
       request(server)
       .get('/todo.txt')
       .expect(200, '- groceries', done)
+    })
+
+    it('should serve static es2015 files to chrome 49', function (done) {
+      request(server)
+          .get('/todo.txt')
+          .set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36')
+          .expect(200, '- es2015 groceries', done)
     })
 
     it('should support nesting', function (done) {
@@ -128,6 +135,7 @@ describe('serveStatic()', function () {
     })
   });
 
+/*
   (skipRelative ? describe.skip : describe)('current dir', function () {
     var server
     before(function () {
@@ -141,6 +149,7 @@ describe('serveStatic()', function () {
       .expect(200, '- groceries', done)
     })
   })
+*/
 
   describe('acceptRanges', function () {
     describe('when false', function () {

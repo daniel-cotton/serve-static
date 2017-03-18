@@ -19,6 +19,7 @@ var parseUrl = require('parseurl')
 var resolve = require('path').resolve
 var send = require('send')
 var url = require('url')
+var uaParser = require('ua-parser');
 
 /**
  * Module exports.
@@ -92,8 +93,16 @@ function serveStatic (root, options) {
       path = ''
     }
 
+
     // create send stream
-    var stream = send(req, path, opts)
+    var stream = send(req, path, Object.assign({}, opts, {
+      root: opts.root + parseUA(req.headers['user-agent'])
+    }));
+
+    console.log(Object.assign({}, opts, {
+      root: opts.root + parseUA(req.headers['user-agent'])
+    }));
+
 
     // add directory handler
     stream.on('directory', onDirectory)
@@ -206,4 +215,24 @@ function createRedirectDirectoryListener () {
     res.setHeader('Location', loc)
     res.end(doc)
   }
+}
+
+
+/**
+ * Parse a user-agent and return the base-directory
+ * @private
+ */
+function parseUA(ua){
+  var uaParsed = uaParser.parseUA(ua)
+
+  const browser = uaParsed.family
+  const majorVersion = uaParsed.major
+
+  const supportsES2015 = (browser === 'Chrome' && majorVersion >= 49) ||
+      (browser === 'Safari' && majorVersion >= 10) ||
+      (browser === 'Edge' && majorVersion >= 14) ||
+      (browser === 'Firefox' && majorVersion >= 51)
+
+  return supportsES2015 ? '/es2015' : '/es5'
+
 }
