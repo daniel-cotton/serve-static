@@ -4,7 +4,6 @@ var http = require('http')
 var path = require('path')
 var request = require('supertest')
 var serveStatic = require('..')
-var expect = require('chai').expect
 
 var fixtures = path.join(__dirname, '/fixtures')
 var relative = path.relative(process.cwd(), fixtures)
@@ -830,7 +829,7 @@ describe('serveStatic()', function () {
             console.error(err)
           }
           // Header should not exist!
-          expect(res.headers).to.not.have.key('isWorkingMiddlewareWorks')
+          assert.equal(res.headers.isWorkingMiddlewareWorks, undefined)
           done(err)
         })
     })
