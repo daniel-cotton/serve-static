@@ -1,4 +1,4 @@
-# serve-static
+# serve-static-middleware
 
 [![NPM Version][npm-image]][npm-url]
 [![Linux Build][travis-image]][travis-url]
