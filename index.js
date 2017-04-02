@@ -70,15 +70,13 @@ function serveStatic (root, options, middleware) {
     : createNotFoundDirectoryListener()
 
   return function serveStatic (req, res, next) {
+    var opts = Object.assign({}, optns)
 
-    var opts = Object.assign({}, optns);
-
-    if (middleware instanceof Array && middleware.length > 0){
+    if (middleware instanceof Array && middleware.length > 0) {
       middleware.forEach(function (middlewareFn) {
         middlewareFn(req, res, next, opts)
-      });
+      })
     }
-
 
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       if (fallthrough) {

@@ -4,7 +4,7 @@ var http = require('http')
 var path = require('path')
 var request = require('supertest')
 var serveStatic = require('..')
-var expect = require('chai').expect;
+var expect = require('chai').expect
 
 var fixtures = path.join(__dirname, '/fixtures')
 var relative = path.relative(process.cwd(), fixtures)
@@ -797,18 +797,20 @@ describe('serveStatic()', function () {
       request(server)
         .get('/todo.txt')
         .expect(200, '- groceries')
-        .end(function(err, res) {
+        .end(function (err, res) {
+          if (err) {
+            console.error(err)
+          }
           // Header should not exist!
-          expect(res.headers).to.not.have.key('isWorkingMiddlewareWorks');
-          done();
-        });
-
+          expect(res.headers).to.not.have.key('isWorkingMiddlewareWorks')
+          done(err)
+        })
     })
   })
-});
+})
 
-function isWorkingMiddleware (req, res, next, opts){
-  res.setHeader('isWorkingMiddlewareWorks', 'yes');
+function isWorkingMiddleware (req, res, next, opts) {
+  res.setHeader('isWorkingMiddlewareWorks', 'yes')
 }
 
 function createServerWithMiddleware (dir, opts, fn) {
