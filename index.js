@@ -102,10 +102,8 @@ function serveStatic (root, options, middleware) {
       path = ''
     }
 
-
     // create send stream
-    var stream = send(req, path, opts);
-
+    var stream = send(req, path, opts)
 
     // add directory handler
     stream.on('directory', onDirectory)
@@ -218,4 +216,8 @@ function createRedirectDirectoryListener () {
     res.setHeader('Location', loc)
     res.end(doc)
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> parent of e004235... initial changes for differential serve
