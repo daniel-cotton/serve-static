@@ -19,7 +19,6 @@ var parseUrl = require('parseurl')
 var resolve = require('path').resolve
 var send = require('send')
 var url = require('url')
-var uaParser = require('ua-parser');
 
 /**
  * Module exports.
@@ -36,7 +35,7 @@ module.exports.mime = send.mime
  * @public
  */
 
-function serveStatic (root, options) {
+function serveStatic (root, options, middleware) {
   if (!root) {
     throw new TypeError('root path required')
   }
@@ -46,24 +45,24 @@ function serveStatic (root, options) {
   }
 
   // copy options object
-  var opts = Object.assign({}, options)
+  var optns = Object.assign({}, options)
 
   // fall-though
-  var fallthrough = opts.fallthrough !== false
+  var fallthrough = optns.fallthrough !== false
 
   // default redirect
-  var redirect = opts.redirect !== false
+  var redirect = optns.redirect !== false
 
   // headers listener
-  var setHeaders = opts.setHeaders
+  var setHeaders = optns.setHeaders
 
   if (setHeaders && typeof setHeaders !== 'function') {
     throw new TypeError('option setHeaders must be function')
   }
 
   // setup options for send
-  opts.maxage = opts.maxage || opts.maxAge || 0
-  opts.root = resolve(root)
+  optns.maxage = optns.maxage || optns.maxAge || 0
+  optns.root = resolve(root)
 
   // construct directory listener
   var onDirectory = redirect
@@ -71,6 +70,14 @@ function serveStatic (root, options) {
     : createNotFoundDirectoryListener()
 
   return function serveStatic (req, res, next) {
+    var opts = Object.assign({}, optns)
+
+    if (middleware instanceof Array && middleware.length > 0) {
+      middleware.forEach(function (middlewareFn) {
+        middlewareFn(req, res, next, opts)
+      })
+    }
+
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       if (fallthrough) {
         return next()
@@ -92,19 +99,9 @@ function serveStatic (root, options) {
     if (path === '/' && originalUrl.pathname.substr(-1) !== '/') {
       path = ''
     }
-    
-    console.log(opts);
-
 
     // create send stream
-    var stream = send(req, path, Object.assign({}, opts, {
-      root: opts.root + parseUA(req.headers['user-agent'])
-    }));
-
-    console.log(Object.assign({}, opts, {
-      root: opts.root + parseUA(req.headers['user-agent'])
-    }));
-
+    var stream = send(req, path, opts)
 
     // add directory handler
     stream.on('directory', onDirectory)
@@ -217,24 +214,4 @@ function createRedirectDirectoryListener () {
     res.setHeader('Location', loc)
     res.end(doc)
   }
-}
-
-
-/**
- * Parse a user-agent and return the base-directory
- * @private
- */
-function parseUA(ua){
-  var uaParsed = uaParser.parseUA(ua)
-
-  const browser = uaParsed.family
-  const majorVersion = uaParsed.major
-
-  const supportsES2015 = (browser === 'Chrome' && majorVersion >= 49) ||
-      (browser === 'Safari' && majorVersion >= 10) ||
-      (browser === 'Edge' && majorVersion >= 14) ||
-      (browser === 'Firefox' && majorVersion >= 51)
-
-  return supportsES2015 ? '/es2015' : '/es5'
-
 }

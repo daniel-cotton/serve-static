@@ -1,11 +1,7 @@
 # serve-static
 
 [![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
 [![Linux Build][travis-image]][travis-url]
-[![Windows Build][appveyor-image]][appveyor-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-[![Gratipay][gratipay-image]][gratipay-url]
 
 ## Install
 
@@ -13,8 +9,13 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 [npm registry](https://www.npmjs.com/). Installation is done using the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
+This module is a fork of the excellent serve-static middleware:
+https://github.com/expressjs/serve-static
+
+Simply adds some extensibility via static file specific express-style middleware.
+
 ```sh
-$ npm install serve-static
+$ npm install serve-static-middleware
 ```
 
 ## API
@@ -22,16 +23,22 @@ $ npm install serve-static
 <!-- eslint-disable no-unused-vars -->
 
 ```js
-var serveStatic = require('serve-static')
+var serveStatic = require('serve-static-middleware')
 ```
 
-### serveStatic(root, options)
+### serveStatic(root, options. [staticMiddlewareFunctions])
 
 Create a new middleware function to serve files from within a given root
 directory. The file to serve will be determined by combining `req.url`
 with the provided root directory. When a file is not found, instead of
 sending a 404 response, this module will instead call `next()` to move on
 to the next middleware, allowing for stacking and fall-backs.
+
+This fork allows you to pass an array of staticMiddlewareFunctions. These functions
+will be sequentially executed and have the following parameters passed:
+
+    (request, response, next, options)
+
 
 #### Options
 
@@ -240,14 +247,8 @@ function setCustomCacheControl (res, path) {
 [MIT](LICENSE)
 
 [npm-image]: https://img.shields.io/npm/v/serve-static.svg
-[npm-url]: https://npmjs.org/package/serve-static
-[travis-image]: https://img.shields.io/travis/expressjs/serve-static/master.svg?label=linux
-[travis-url]: https://travis-ci.org/expressjs/serve-static
-[appveyor-image]: https://img.shields.io/appveyor/ci/dougwilson/serve-static/master.svg?label=windows
-[appveyor-url]: https://ci.appveyor.com/project/dougwilson/serve-static
-[coveralls-image]: https://img.shields.io/coveralls/expressjs/serve-static/master.svg
-[coveralls-url]: https://coveralls.io/r/expressjs/serve-static
+[npm-url]: https://npmjs.org/package/serve-static-middleware
+[travis-image]: https://img.shields.io/travis/daniel-cotton/serve-static-middleware/master.svg?label=linux
+[travis-url]: https://travis-ci.org/daniel-cotton/serve-static-middleware
 [downloads-image]: https://img.shields.io/npm/dm/serve-static.svg
-[downloads-url]: https://npmjs.org/package/serve-static
-[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
-[gratipay-url]: https://gratipay.com/dougwilson/
+[downloads-url]: https://npmjs.org/package/serve-static-middleware
