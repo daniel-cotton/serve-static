@@ -46,7 +46,7 @@ function serveStatic (root, options) {
   }
 
   // copy options object
-  var opts = Object.create(options || null)
+  var opts = Object.assign({}, options)
 
   // fall-though
   var fallthrough = opts.fallthrough !== false
@@ -92,6 +92,8 @@ function serveStatic (root, options) {
     if (path === '/' && originalUrl.pathname.substr(-1) !== '/') {
       path = ''
     }
+    
+    console.log(opts);
 
 
     // create send stream
