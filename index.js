@@ -216,8 +216,4 @@ function createRedirectDirectoryListener () {
     res.setHeader('Location', loc)
     res.end(doc)
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> parent of e004235... initial changes for differential serve
