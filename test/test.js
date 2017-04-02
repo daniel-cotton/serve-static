@@ -4,7 +4,7 @@ var http = require('http')
 var path = require('path')
 var request = require('supertest')
 var serveStatic = require('..')
-var uaParser = require('ua-parser');
+var expect = require('chai').expect;
 
 var fixtures = path.join(__dirname, '/fixtures')
 var relative = path.relative(process.cwd(), fixtures)
@@ -777,7 +777,7 @@ describe('serveStatic()', function () {
   describe('when custom middleware is added', function () {
     var server
     before(function () {
-      server = createServer()
+      server = createServerWithMiddleware()
     })
 
     it('should apply such middleware', function (done) {
@@ -787,16 +787,48 @@ describe('serveStatic()', function () {
         .expect(200, '- groceries', done)
     })
   })
+  describe('when custom middleware is not added', function () {
+    var server
+    before(function () {
+      server = createServer()
+    })
+
+    it('should not apply middleware', function (done) {
+      request(server)
+        .get('/todo.txt')
+        .expect(200, '- groceries')
+        .end(function(err, res) {
+          // Header should not exist!
+          expect(res.headers).to.not.have.key('isWorkingMiddlewareWorks');
+          done();
+        });
+
+    })
+  })
 });
 
 function isWorkingMiddleware (req, res, next, opts){
   res.setHeader('isWorkingMiddlewareWorks', 'yes');
 }
 
-function createServer (dir, opts, fn) {
+function createServerWithMiddleware (dir, opts, fn) {
   dir = dir || fixtures
 
   var _serve = serveStatic(dir, opts, [isWorkingMiddleware])
+
+  return http.createServer(function (req, res) {
+    fn && fn(req, res)
+    _serve(req, res, function (err) {
+      res.statusCode = err ? (err.status || 500) : 404
+      res.end(err ? err.stack : 'sorry!')
+    })
+  })
+}
+
+function createServer (dir, opts, fn) {
+  dir = dir || fixtures
+
+  var _serve = serveStatic(dir, opts)
 
   return http.createServer(function (req, res) {
     fn && fn(req, res)
